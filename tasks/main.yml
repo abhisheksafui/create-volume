@@ -7,7 +7,7 @@
   shell: >
     virsh -c qemu:///system vol-create-as 
     {{ pool }} {{ image_name }}
-    {{ image_size }} --format {{ image_format }}
+    {{ image_size }} --format {{ image_format | default('qcow2') }}
 
   when: backing_vol is undefined
 
@@ -17,7 +17,7 @@
   shell: >
     virsh -c qemu:///system vol-create-as 
     {{ pool }} {{ image_name }}
-    {{ image_size }} --format {{ image_format }}
+    {{ image_size }} --format {{ image_format | default('qcow2') }}
     --backing-vol {{ backing_vol }}
     --backing-vol-format {{ backing_vol_format | default('qcow2') }}
 
