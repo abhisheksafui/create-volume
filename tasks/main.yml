@@ -1,0 +1,24 @@
+---
+# tasks file for create-volume
+
+# Define a new storage pool
+
+- name: Create Volume without backing
+  shell: >
+    virsh -c qemu:///system vol-create-as 
+    {{ pool }} {{ image_name }}
+    {{ image_size }} --format {{ image_format }}
+
+  when: backing_vol is undefined
+
+
+  # tasks file for create-volume
+- name: Create Backing Volume 
+  shell: >
+    virsh -c qemu:///system vol-create-as 
+    {{ pool }} {{ image_name }}
+    {{ image_size }} --format {{ image_format }}
+    --backing-vol {{ backing_vol }}
+    --backing-vol-format {{ backing_vol_format | default('qcow2') }}
+
+  when: backing_vol is defined

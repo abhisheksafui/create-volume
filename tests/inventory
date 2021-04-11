@@ -1,0 +1,3 @@
+[bluefield.server.3]
+192.168.111.237 ansible_connection=ssh ansible_user=pocuser ansible_password=pocuser123
+
