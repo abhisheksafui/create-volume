@@ -1,21 +1,40 @@
 ---
 # tasks file for create-volume
-- name: Create Volume 
-  shell: >
-    virsh -c "qemu:///system" vol-create-as 
-    {{ pool }} {{ image_name }}
-    {{ image_size }} --format {{ image_format }}
 
-  when: backing_vol is undefined
+- debug:
+    var: image_name
+- debug:
+    var: image_size
+- debug:
+    var: pool
+- debug:
+    var: backing_vol
+
+- name: Check existance of volume in pool
+  shell: > 
+    virsh -c "qemu:///system" vol-list {{ pool }} | grep {{ image_name }}
+  ignore_errors: yes
+  register: vol_existance_check
+
+- block:
+  - name: Create Volume 
+    shell: >
+      virsh -c "qemu:///system" vol-create-as 
+      {{ pool }} {{ image_name }}
+      {{ image_size }} --format {{ image_format }}
+    ignore_errors: yes
+    when: backing_vol is undefined
 
 
-  # tasks file for create-volume
-- name: Create Volume 
-  shell: >
-    virsh -c "qemu:///system" vol-create-as 
-    {{ pool }} {{ image_name }}
-    {{ image_size }} --format {{ image_format }}
-    --backing-vol {{ backing_vol }}
-    --backing-vol-format {{ backing_vol_format | default('qcow2') }}
+    # tasks file for create-volume
+  - name: Create Volume with backing image 
+    shell: >
+      virsh -c "qemu:///system" vol-create-as 
+      {{ pool }} {{ image_name }} {{ image_size }} 
+      --format {{ image_format }}
+      --backing-vol {{ backing_vol }}
+      --backing-vol-format {{ backing_vol_format | default('qcow2') }}
 
-  when: backing_vol is defined
+    when: backing_vol is defined
+  
+  when: vol_existance_check.rc == 1
